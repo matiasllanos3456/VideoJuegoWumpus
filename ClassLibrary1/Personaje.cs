@@ -12,7 +12,7 @@
         }
         public void MostrarDatos()
         {
-            Console.WriteLine("Posicion: \nx: "+x+"\ny: "+y);
+            Console.WriteLine("Posicion: \nx: "+x+"; y: "+y);
         }
     }
 }

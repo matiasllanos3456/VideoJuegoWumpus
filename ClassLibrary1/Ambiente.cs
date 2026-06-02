@@ -18,18 +18,20 @@ namespace ClassLibrary1
         protected TipoElemento[,] Dimensiones;
         protected int[] PosicionOro;
         protected Pozo[] Pozos;
+        public bool Finalizado;
         private Random random = new Random();
 
-        public Ambiente(string nombre, Protagonista protagonista, Wumpus wumpus) 
+        public Ambiente(string nombre) 
         {
             this.nombre = nombre;
-            this.Dimensiones = new TipoElemento[5,5];
-            this.protagonista = protagonista;
-            this.wumpus = wumpus;
+            Dimensiones = new TipoElemento[5,5];
+            protagonista = new Protagonista(0,0);
+            wumpus = new Wumpus(0,0);
             // Habrán 3 objetos pozo
-            this.Pozos = new Pozo[3];
+            Pozos = new Pozo[3];
             // Habrá un solo oro
-            this.PosicionOro = new int[2];
+            PosicionOro = new int[2];
+            Finalizado = false;
         }
         // Se manejará un juego por turnos
         public void GenerarMapa()
@@ -48,6 +50,9 @@ namespace ClassLibrary1
             // Casilla aleatoria del Wumpus
             (int wumpusX, int wumpusY) = ObtenerCasillaVaciaAleatoria();
             Dimensiones[wumpusX, wumpusY] = TipoElemento.Wumpus;
+            // Mover al wumpus a su posicion
+            wumpus.x = wumpusX;
+            wumpus.y = wumpusY;
 
             // Casilla del oro
             (int oroX, int oroY) = ObtenerCasillaVaciaAleatoria();
@@ -79,13 +84,6 @@ namespace ClassLibrary1
 
             return (x, y);
         }
-        public void IniciarJuego()
-        {
-            // Instanciará a las demás clases
-            // Se llamará al metodo generar pozos y se colocarán en la matriz Dimensiones
-            // Lo mismo para el Wumpus y el oro
-            // El protagonista partirá en la posición 0,0
-        }
 
         // Los botones de movimiento no interactuarán directamente con el metodo
         public void SimularTurno(int x, int y)
@@ -94,29 +92,70 @@ namespace ClassLibrary1
             // Se tendrá cuidado de que no se salga del tablero
             // Si el protagonista encuentra el oro y se devuelve a la
             // posición 0,0 el juego finalizará
-            if (x == 0) // Se asume que se presiono a arriba o abajo
-            {
-                // Si con movimiento se sale del tablero no se realizará el movimiento
-                if (protagonista.y + y > Dimensiones.GetLength(1) || protagonista.y - y < Dimensiones.GetLength(1))
-                {
-                    Console.WriteLine("Movimiento invalido");
-                } else
-                {
-                    
-                }
-            } else // Se asume lo contrario
-            {
-                if (protagonista.x + x > Dimensiones.GetLength(0) || protagonista.x - x < Dimensiones.GetLength(0))
-                {
-                    Console.WriteLine("Movimiento invalido");
-                }
-                else
-                {
 
-                }
+            // Si con movimiento se sale del tablero no se realizará el movimiento
+            if (protagonista.y + y > Dimensiones.GetLength(1) || protagonista.y - y < Dimensiones.GetLength(1) || protagonista.x + x > Dimensiones.GetLength(0) || protagonista.x - x < Dimensiones.GetLength(0))
+            {
+                Console.WriteLine("Movimiento invalido");
+                return;
             }
+            protagonista.Moverse(x, y);
+            // Verificar en que casilla a caído y si finaliza o no el juego
 
+            if (protagonista.x == wumpus.x && protagonista.y == wumpus.y){
+                // El protagonista muere
+                Console.WriteLine("Haz sido deborado por el wumpus");
+                protagonista.Estado = false;
+                return;
+            }
+            if (Dimensiones[protagonista.x, protagonista.y] == TipoElemento.Pozo)
+            {
+                Console.WriteLine("El protagonista ha vaído en un pozo");
+                protagonista.Estado = false;
+                return;
+            }
+            if (Dimensiones[protagonista.x, protagonista.y] == TipoElemento.Oro)
+            {
+                Console.WriteLine("Haz encontrado el oro");
+                protagonista.EncontroOro = true;
+                return;
+            }
+            if(protagonista.x == 0 && protagonista.y == 0 && protagonista.EncontroOro == true)
+            {
+                Console.WriteLine("Haz conseguido escapar con el oro. Felicitaciones!!!");
+                // El juego se termina con la victoria del protagonista
+                Finalizado = true;
+                return;
+            }
+            // Colocar las advertencias para casillas adyacentes
+
+            if (Dimensiones[protagonista.x + 1, protagonista.y] == TipoElemento.Wumpus
+                || Dimensiones[protagonista.x - 1, protagonista.y] == TipoElemento.Wumpus
+                || Dimensiones[protagonista.x, protagonista.y + 1] == TipoElemento.Wumpus
+                || Dimensiones[protagonista.x, protagonista.y - 1] == TipoElemento.Wumpus)
+            {
+                wumpus.EmitirRuido();
+            }
+            if (Dimensiones[protagonista.x + 1, protagonista.y] == TipoElemento.Pozo
+                || Dimensiones[protagonista.x - 1, protagonista.y] == TipoElemento.Pozo
+                || Dimensiones[protagonista.x, protagonista.y + 1] == TipoElemento.Pozo
+                || Dimensiones[protagonista.x, protagonista.y - 1] == TipoElemento.Pozo)
+            {
+                Pozos[0].EmitirViento();
+            }
+            if (Dimensiones[protagonista.x + 1, protagonista.y] == TipoElemento.Oro
+                || Dimensiones[protagonista.x - 1, protagonista.y] == TipoElemento.Oro
+                || Dimensiones[protagonista.x, protagonista.y + 1] == TipoElemento.Oro
+                || Dimensiones[protagonista.x, protagonista.y - 1] == TipoElemento.Oro)
+            {
+                Console.WriteLine("Hay algo brillante cerca");
+            }
+            // Actualizar el mapa
+            // La nueva casilla pasa a estar ocupada por el jugador
+            Dimensiones[protagonista.x, protagonista.y] = TipoElemento.Jugador;
+            // mientras que la casilla anterior pasa a estar vacía
+            Dimensiones[protagonista.x - x, protagonista.y - y] = TipoElemento.Vacio;
         }
-        
+
     }
 }
