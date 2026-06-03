@@ -11,35 +11,33 @@ namespace ClassLibrary1
     public enum TipoElemento { Vacio, Jugador, Wumpus, Pozo, Oro }
     public class Ambiente
     {
-        // Se manejara un tamaño fijo de 5 * 5
-        protected string nombre;
-        protected Protagonista protagonista; 
-        protected Wumpus wumpus;
+        // Se manejara un tamaño fijo de 4 x 4
+        public string nombre;
+        public Protagonista protagonista; 
+        public Wumpus wumpus;
         protected TipoElemento[,] Dimensiones;
-        protected int[] PosicionOro;
-        protected Pozo[] Pozos;
+        public Pozo[] Pozos;
         public bool Finalizado;
         private Random random = new Random();
 
         public Ambiente(string nombre) 
         {
             this.nombre = nombre;
-            Dimensiones = new TipoElemento[5,5];
+            Dimensiones = new TipoElemento[4,4];
             protagonista = new Protagonista(0,0);
             wumpus = new Wumpus(0,0);
             // Habrán 3 objetos pozo
-            Pozos = new Pozo[3];
+            Pozos = new Pozo[2];
             // Habrá un solo oro
-            PosicionOro = new int[2];
             Finalizado = false;
         }
         // Se manejará un juego por turnos
         public void GenerarMapa()
         {
             // 1. Limpiar el mapa completo (poner todo en Vacío)
-            for (int x = 0; x < 5; x++)
+            for (int x = 0; x < 4; x++)
             {
-                for (int y = 0; y < 5; y++)
+                for (int y = 0; y < 4; y++)
                 {
                     Dimensiones[x, y] = TipoElemento.Vacio;
                 }
@@ -58,8 +56,8 @@ namespace ClassLibrary1
             (int oroX, int oroY) = ObtenerCasillaVaciaAleatoria();
             Dimensiones[oroX, oroY] = TipoElemento.Oro;
 
-            // Casillas para los 3 pozos
-            for(int i = 0; i < 3; i++)
+            // Casillas para los 2 pozos
+            for(int i = 0; i < 2; i++)
             {
                 (int pozoX, int pozoY) = ObtenerCasillaVaciaAleatoria();
                 Dimensiones[pozoX, pozoY] = TipoElemento.Pozo;
@@ -76,8 +74,8 @@ namespace ClassLibrary1
             {
                 // Como la matriz no es muy grande no deberia 
                 // generar problemas de rendimiento
-                x = random.Next(0, 5); // Genera de 0 a 4
-                y = random.Next(0, 5);
+                x = random.Next(0, 4); // Genera de 0 a 3
+                y = random.Next(0, 4);
             }
             // Se repite si la casilla NO está vacía O si es la casilla inicial (0,0)
             while (Dimensiones[x, y] != TipoElemento.Vacio || (x == 0 && y == 0));
@@ -86,7 +84,7 @@ namespace ClassLibrary1
         }
 
         // Los botones de movimiento no interactuarán directamente con el metodo
-        public void SimularTurno(int x, int y)
+        public string SimularTurno(int x, int y)
         {
             // Se llamará al metodo Moverse() del protagonista
             // Se tendrá cuidado de que no se salga del tablero
@@ -94,67 +92,89 @@ namespace ClassLibrary1
             // posición 0,0 el juego finalizará
 
             // Si con movimiento se sale del tablero no se realizará el movimiento
-            if (protagonista.y + y > Dimensiones.GetLength(1) || protagonista.y - y < Dimensiones.GetLength(1) || protagonista.x + x > Dimensiones.GetLength(0) || protagonista.x - x < Dimensiones.GetLength(0))
+            int nuevaX = protagonista.x + x;
+            int nuevaY = protagonista.y + y;
+
+            // Validamos si ese destino está fuera de los límites (0 a 3)
+            if (nuevaX < 0 || nuevaX >= Dimensiones.GetLength(0) ||
+                nuevaY < 0 || nuevaY >= Dimensiones.GetLength(1))
             {
-                Console.WriteLine("Movimiento invalido");
-                return;
+                return "Movimiento invalido";
             }
             protagonista.Moverse(x, y);
             // Verificar en que casilla a caído y si finaliza o no el juego
 
             if (protagonista.x == wumpus.x && protagonista.y == wumpus.y){
                 // El protagonista muere
-                Console.WriteLine("Haz sido deborado por el wumpus");
                 protagonista.Estado = false;
-                return;
+                return "Haz sido deborado por el wumpus";
             }
             if (Dimensiones[protagonista.x, protagonista.y] == TipoElemento.Pozo)
             {
-                Console.WriteLine("El protagonista ha vaído en un pozo");
+                // El protagonista muere
                 protagonista.Estado = false;
-                return;
+                return "El protagonista ha vaído en un pozo";
             }
             if (Dimensiones[protagonista.x, protagonista.y] == TipoElemento.Oro)
             {
-                Console.WriteLine("Haz encontrado el oro");
                 protagonista.EncontroOro = true;
-                return;
+                return "Haz encontrado el oro, escapa rapido!!";
             }
             if(protagonista.x == 0 && protagonista.y == 0 && protagonista.EncontroOro == true)
             {
-                Console.WriteLine("Haz conseguido escapar con el oro. Felicitaciones!!!");
                 // El juego se termina con la victoria del protagonista
                 Finalizado = true;
-                return;
+                return "Haz conseguido escapar con el oro. Felicitaciones!!!";
             }
             // Colocar las advertencias para casillas adyacentes
-
-            if (Dimensiones[protagonista.x + 1, protagonista.y] == TipoElemento.Wumpus
-                || Dimensiones[protagonista.x - 1, protagonista.y] == TipoElemento.Wumpus
-                || Dimensiones[protagonista.x, protagonista.y + 1] == TipoElemento.Wumpus
-                || Dimensiones[protagonista.x, protagonista.y - 1] == TipoElemento.Wumpus)
+            // No se retornanar de inmediato por si hay mas de un mensaje
+            // Ejemplo: arriba del jugador hay un wumpus y a la derecha un pozo
+            // se tendrían que mostrar 2 mensajes
+            string mensaje = "";
+            if (RevisarCasillasAdyacentes(protagonista.x, protagonista.y, TipoElemento.Wumpus))
             {
-                wumpus.EmitirRuido();
+                mensaje += wumpus.EmitirRuido() + "\n";
             }
-            if (Dimensiones[protagonista.x + 1, protagonista.y] == TipoElemento.Pozo
-                || Dimensiones[protagonista.x - 1, protagonista.y] == TipoElemento.Pozo
-                || Dimensiones[protagonista.x, protagonista.y + 1] == TipoElemento.Pozo
-                || Dimensiones[protagonista.x, protagonista.y - 1] == TipoElemento.Pozo)
+            if (RevisarCasillasAdyacentes(protagonista.x, protagonista.y, TipoElemento.Pozo))
             {
-                Pozos[0].EmitirViento();
+                mensaje += Pozos[0].EmitirViento() + "\n";
             }
-            if (Dimensiones[protagonista.x + 1, protagonista.y] == TipoElemento.Oro
-                || Dimensiones[protagonista.x - 1, protagonista.y] == TipoElemento.Oro
-                || Dimensiones[protagonista.x, protagonista.y + 1] == TipoElemento.Oro
-                || Dimensiones[protagonista.x, protagonista.y - 1] == TipoElemento.Oro)
+            if (RevisarCasillasAdyacentes(protagonista.x, protagonista.y, TipoElemento.Oro))
             {
-                Console.WriteLine("Hay algo brillante cerca");
+                mensaje += "Hay algo brillante cerca\n";
             }
             // Actualizar el mapa
             // La nueva casilla pasa a estar ocupada por el jugador
             Dimensiones[protagonista.x, protagonista.y] = TipoElemento.Jugador;
             // mientras que la casilla anterior pasa a estar vacía
             Dimensiones[protagonista.x - x, protagonista.y - y] = TipoElemento.Vacio;
+            return mensaje +"Casilla segura\n" + protagonista.MostrarDatos();
+        }
+        private bool RevisarCasillasAdyacentes(int x, int y, TipoElemento elementoBuscado)
+        {
+            // Definimos las 4 direcciones a revisar: Derecha, Izquierda, Abajo, Arriba
+            int[] desX = { 1, -1, 0, 0 };
+            int[] desY = { 0, 0, 1, -1 };
+
+            for (int i = 0; i < 4; i++)
+            {
+                int vecinoX = x + desX[i];
+                int vecinoY = y + desY[i];
+
+                // Validamos si la casilla adyacente existe en la matriz
+                // para que no salten excepciones de indice fuera de rango
+                if (vecinoX >= 0 && vecinoX < Dimensiones.GetLength(0) &&
+                    vecinoY >= 0 && vecinoY < Dimensiones.GetLength(1))
+                {
+                    // Si existe, evisamos qué hay adentro sin peligro de excepción
+                    if (Dimensiones[vecinoX, vecinoY] == elementoBuscado)
+                    {
+                        return true; // Encontró el elemento alrededor
+                    }
+                }
+            }
+
+            return false; // No hay ninguno de ese tipo cerca
         }
 
     }

@@ -9,9 +9,9 @@ namespace ClassLibrary1
         public Pozo(int x, int y) : base(x, y)
         {
         }
-        public void EmitirViento()
+        public string EmitirViento()
         {
-            Console.WriteLine("* Se siente una extraña briza");
+            return "* Se siente una extraña briza";
         }
     }
 }

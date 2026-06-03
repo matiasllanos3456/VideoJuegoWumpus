@@ -10,9 +10,9 @@ namespace ClassLibrary1
         {
         }
 
-        public void EmitirRuido()
+        public string EmitirRuido()
         {
-            Console.WriteLine("* Se oye un gruñido cerca");
+            return "* Se oye un gruñido cerca";
         }
     }
 }

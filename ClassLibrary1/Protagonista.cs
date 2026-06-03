@@ -17,7 +17,7 @@ namespace ClassLibrary1
             EncontroOro = false;
             Estado = true;
         }
-        public void Moverse(int x, int y)
+        public string Moverse(int x, int y)
         {
             if (x == 0)
             {
@@ -27,7 +27,12 @@ namespace ClassLibrary1
             {
                 this.x += x;
             }
-            MostrarDatos();
+            return MostrarDatos();
+        }
+        public string MostrarDatos()
+        {
+            // El mensaje es retornado para ser mostrado en el textpanel
+            return "Posicion actual: x: " + x + "; y: " + y;
         }
 
     }

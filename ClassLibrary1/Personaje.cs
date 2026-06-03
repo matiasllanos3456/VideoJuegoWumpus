@@ -10,9 +10,5 @@
             this.x = x;
             this.y = y;
         }
-        public void MostrarDatos()
-        {
-            Console.WriteLine("Posicion: \nx: "+x+"; y: "+y);
-        }
     }
 }

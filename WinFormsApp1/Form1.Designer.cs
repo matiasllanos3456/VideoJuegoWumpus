@@ -94,7 +94,6 @@
             label16.Name = "label16";
             label16.Size = new Size(193, 124);
             label16.TabIndex = 15;
-            label16.Text = "N";
             label16.TextAlign = ContentAlignment.MiddleCenter;
             label16.Click += label1_Click;
             // 
@@ -106,7 +105,6 @@
             label15.Name = "label15";
             label15.Size = new Size(191, 124);
             label15.TabIndex = 14;
-            label15.Text = "c";
             label15.TextAlign = ContentAlignment.MiddleCenter;
             label15.Click += label1_Click;
             // 
@@ -118,7 +116,6 @@
             label14.Name = "label14";
             label14.Size = new Size(191, 124);
             label14.TabIndex = 13;
-            label14.Text = "c";
             label14.TextAlign = ContentAlignment.MiddleCenter;
             label14.Click += label1_Click;
             // 
@@ -130,7 +127,6 @@
             label13.Name = "label13";
             label13.Size = new Size(191, 124);
             label13.TabIndex = 12;
-            label13.Text = "c";
             label13.TextAlign = ContentAlignment.MiddleCenter;
             label13.Click += label1_Click;
             // 
@@ -142,7 +138,6 @@
             label12.Name = "label12";
             label12.Size = new Size(193, 122);
             label12.TabIndex = 11;
-            label12.Text = "z";
             label12.TextAlign = ContentAlignment.MiddleCenter;
             label12.Click += label1_Click;
             // 
@@ -154,7 +149,6 @@
             label11.Name = "label11";
             label11.Size = new Size(191, 122);
             label11.TabIndex = 10;
-            label11.Text = "c";
             label11.TextAlign = ContentAlignment.MiddleCenter;
             label11.Click += label1_Click;
             // 
@@ -166,7 +160,6 @@
             label10.Name = "label10";
             label10.Size = new Size(191, 122);
             label10.TabIndex = 9;
-            label10.Text = "c";
             label10.TextAlign = ContentAlignment.MiddleCenter;
             label10.Click += label1_Click;
             // 
@@ -178,7 +171,6 @@
             label9.Name = "label9";
             label9.Size = new Size(191, 122);
             label9.TabIndex = 8;
-            label9.Text = "a";
             label9.TextAlign = ContentAlignment.MiddleCenter;
             label9.Click += label1_Click;
             // 
@@ -190,7 +182,6 @@
             label8.Name = "label8";
             label8.Size = new Size(193, 122);
             label8.TabIndex = 7;
-            label8.Text = "c";
             label8.TextAlign = ContentAlignment.MiddleCenter;
             label8.Click += label1_Click;
             // 
@@ -202,7 +193,6 @@
             label7.Name = "label7";
             label7.Size = new Size(191, 122);
             label7.TabIndex = 6;
-            label7.Text = "r";
             label7.TextAlign = ContentAlignment.MiddleCenter;
             label7.Click += label1_Click;
             // 
@@ -214,7 +204,6 @@
             label6.Name = "label6";
             label6.Size = new Size(191, 122);
             label6.TabIndex = 5;
-            label6.Text = "c";
             label6.TextAlign = ContentAlignment.MiddleCenter;
             label6.Click += label1_Click;
             // 
@@ -226,7 +215,6 @@
             label5.Name = "label5";
             label5.Size = new Size(191, 122);
             label5.TabIndex = 4;
-            label5.Text = "c";
             label5.TextAlign = ContentAlignment.MiddleCenter;
             label5.Click += label1_Click;
             // 
@@ -238,7 +226,6 @@
             label4.Name = "label4";
             label4.Size = new Size(193, 122);
             label4.TabIndex = 3;
-            label4.Text = "c";
             label4.TextAlign = ContentAlignment.MiddleCenter;
             label4.Click += label1_Click;
             // 
@@ -250,7 +237,6 @@
             label3.Name = "label3";
             label3.Size = new Size(191, 122);
             label3.TabIndex = 2;
-            label3.Text = "c";
             label3.TextAlign = ContentAlignment.MiddleCenter;
             label3.Click += label1_Click;
             // 
@@ -262,7 +248,6 @@
             label2.Name = "label2";
             label2.Size = new Size(191, 122);
             label2.TabIndex = 1;
-            label2.Text = "c";
             label2.TextAlign = ContentAlignment.MiddleCenter;
             label2.Click += label1_Click;
             // 
@@ -274,7 +259,7 @@
             label1.Name = "label1";
             label1.Size = new Size(191, 122);
             label1.TabIndex = 0;
-            label1.Text = "c";
+            label1.Text = "j";
             label1.TextAlign = ContentAlignment.MiddleCenter;
             label1.Click += label1_Click;
             // 
