@@ -10,6 +10,8 @@ namespace WinFormsApp1
         private Button btnArriba, btnAbajo, btnIzquierda, btnDerecha;
         private TextBox txtBitacora;
         private Ambiente ambiente;
+        // Guarda true si la casilla ya fue descubierta
+        private bool[,] casillasVisitadas = new bool[4, 4];
 
         public Interfaz1()
         {
@@ -18,24 +20,26 @@ namespace WinFormsApp1
             // Aparte dentro de la clase se instanciará al protagonista y al wumpus
             ambiente = new Ambiente("Mundo de wumpus");
             ambiente.GenerarMapa();
+            // Aquí parte el jugador
+            casillasVisitadas[0, 0] = true;
             // Reorganizamos y creamos los elementos dinámicamente
             ConfigurarDiseñoYControles();
         }
 
         private void ConfigurarDiseñoYControles()
         {
-            // 1. Quitamos el Dock Fill al tablero para darle su propio espacio a la izquierda
+            // Se quita el Dock Fill al tablero para darle su propio espacio a la izquierda
             tableLayoutPanel1.Dock = DockStyle.Left;
-            tableLayoutPanel1.Width = 500; // El tablero ocupará 500px de ancho
+            tableLayoutPanel1.Width = 500; 
 
-            // 2. Creamos un panel contenedor para los controles a la derecha (los 300px restantes)
+            // Se crea un panel contenedor para los controles a la derecha 
             panelControles = new Panel();
             panelControles.Location = new Point(500, 0);
             panelControles.Size = new Size(300, 500);
             panelControles.BackColor = SystemColors.ControlLight;
             this.Controls.Add(panelControles);
 
-            // 3. Creamos la caja de texto (Bitácora de mensajes)
+            // Se crea una caja de texto (Bitácora de mensajes)
             txtBitacora = new TextBox();
             txtBitacora.Multiline = true;
             txtBitacora.ReadOnly = true;
@@ -46,33 +50,31 @@ namespace WinFormsApp1
             txtBitacora.Text = "¡Bienvenido al Mundo de Wumpus!\r\nTu aventura comienza en (0,0).\r\n";
             panelControles.Controls.Add(txtBitacora);
 
-            // 4. Creamos los 4 botones de movimiento dispuestos en forma de cruz (Cruceta/D-Pad)
+            // Se crean 4 botones de movimiento en forma de cruz 
             btnArriba = new Button() { Text = "w", Location = new Point(110, 230), Size = new Size(60, 40) };
             btnIzquierda = new Button() { Text = "a", Location = new Point(40, 275), Size = new Size(60, 40) };
             btnAbajo = new Button() { Text = "s", Location = new Point(110, 275), Size = new Size(60, 40) };
             btnDerecha = new Button() { Text = "d", Location = new Point(180, 275), Size = new Size(60, 40) };
 
-            // 5. Asignamos los manejadores de eventos a los botones
-            btnArriba.Click += (s, e) => IntentarMover(0, -1);   // En WinForms, restar en Y sube visualmente
-            btnAbajo.Click += (s, e) => IntentarMover(0, 1);      // Sumar en Y baja visualmente
+            // Se asignan los eventos de cada boton
+            btnArriba.Click += (s, e) => IntentarMover(0, -1);  
+            btnAbajo.Click += (s, e) => IntentarMover(0, 1);      
             btnIzquierda.Click += (s, e) => IntentarMover(-1, 0);
             btnDerecha.Click += (s, e) => IntentarMover(1, 0);
 
-            // 6. Agregamos los botones al panel de control
+            // Se agregan los botones al panel de control
             panelControles.Controls.Add(btnArriba);
             panelControles.Controls.Add(btnIzquierda);
             panelControles.Controls.Add(btnAbajo);
             panelControles.Controls.Add(btnDerecha);
         }
 
-        /// <summary>
-        /// Procesa el movimiento y valida los límites de tu matriz de 4x4
-        /// </summary>
         private void IntentarMover(int desX, int desY)
         {
             string mensaje = ambiente.SimularTurno(desX, desY);
 
             RegistrarMensaje(mensaje);
+            // Se validan las condiciones de termino
             if (ambiente.Finalizado)
             {
                 RegistrarMensaje("Haz ganado.... Juego terminado");
@@ -106,19 +108,38 @@ namespace WinFormsApp1
         }
         private void ActualizarMapa(int xActual, int yActual)
         {
-            // Buscamos el Label exacto que está en esa coordenada de la interfaz
-            Label lblCasilla = tableLayoutPanel1.GetControlFromPosition(xActual,yActual) as Label;
-            // Falta dejar la casilla anterior del protagonista como "vista" ----------------------------
+            // La casilla actual del jugador queda como visitada
+            casillasVisitadas[xActual, yActual] = true;
 
-            if (lblCasilla != null)
+            for (int col = 0; col < 4; col++)      
             {
-                lblCasilla.Text = "j";
-                lblCasilla.BackColor = Color.LightGreen; // Color distintivo para el jugador
-                lblCasilla.ForeColor = Color.Black;
+                for (int fila = 0; fila < 4; fila++)  
+                {
+                    // Buscamos el Label dinámicamente en esa coordenada
+                    Label lblCasilla = tableLayoutPanel1.GetControlFromPosition(col, fila) as Label;
 
-                //lblCasillaAnterior.Text = "."; // La casilla anterior queda expuesta
-                //lblCasilla.BackColor = Color.White; // Color de casilla descubierta
-                //lblCasilla.ForeColor = Color.LightGray;
+                    if (lblCasilla != null)
+                    {
+                        // La casilla actual del jugador quedá con el icono y el fondo verde
+                        if (col == xActual && fila == yActual)
+                        {
+                            lblCasilla.Text = "j";
+                            lblCasilla.BackColor = Color.LightGreen;
+                            lblCasilla.ForeColor = Color.Black;
+                        }
+                        // Las casillas ya visitadas quedan con un fondo blanco y sin icono
+                        else if (casillasVisitadas[col, fila] == true)
+                        {
+                            lblCasilla.Text = ""; 
+                            lblCasilla.BackColor = Color.White; 
+                        }
+                        // Las casillas que aún no se conocen quedan con un fondo azulado 
+                        else
+                        {
+                            lblCasilla.Text = "";
+                        }
+                    }
+                }
             }
         }
 

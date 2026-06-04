@@ -11,7 +11,7 @@ namespace ClassLibrary1
         }
         public string EmitirViento()
         {
-            return "* Se siente una extraña briza";
+            return "* Se siente una extraña briza....";
         }
     }
 }

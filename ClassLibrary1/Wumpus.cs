@@ -12,7 +12,7 @@ namespace ClassLibrary1
 
         public string EmitirRuido()
         {
-            return "* Se oye un gruñido cerca";
+            return "* Se oye un gruñido cerca....";
         }
     }
 }

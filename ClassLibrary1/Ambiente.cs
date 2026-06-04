@@ -12,12 +12,15 @@ namespace ClassLibrary1
     public class Ambiente
     {
         // Se manejara un tamaño fijo de 4 x 4
-        public string nombre;
-        public Protagonista protagonista; 
-        public Wumpus wumpus;
-        protected TipoElemento[,] Dimensiones;
-        public Pozo[] Pozos;
-        public bool Finalizado;
+        public string nombre { get; private set; }
+        // Se necesitará acceder a algunas propiedades del protagonista
+        // desde fuera de la clase
+        public Protagonista protagonista { get; private set; }
+        private Wumpus wumpus;
+        private TipoElemento[,] Dimensiones;
+        private Pozo[] Pozos;
+        // Se leera desde la interfaz pero solo se modificará desde la misma clase
+        public bool Finalizado {  get; private set; }
         private Random random = new Random();
 
         public Ambiente(string nombre) 
@@ -131,6 +134,7 @@ namespace ClassLibrary1
             // Ejemplo: arriba del jugador hay un wumpus y a la derecha un pozo
             // se tendrían que mostrar 2 mensajes
             string mensaje = "";
+            // Se revisan las casillas adyacentes en busqueda de algun peligro o signos de oro cercanos
             if (RevisarCasillasAdyacentes(protagonista.x, protagonista.y, TipoElemento.Wumpus))
             {
                 mensaje += wumpus.EmitirRuido() + "\n";
@@ -141,14 +145,14 @@ namespace ClassLibrary1
             }
             if (RevisarCasillasAdyacentes(protagonista.x, protagonista.y, TipoElemento.Oro))
             {
-                mensaje += "Hay algo brillante cerca\n";
+                mensaje += "Hay algo brillante cerca\n....";
             }
             // Actualizar el mapa
             // La nueva casilla pasa a estar ocupada por el jugador
             Dimensiones[protagonista.x, protagonista.y] = TipoElemento.Jugador;
             // mientras que la casilla anterior pasa a estar vacía
             Dimensiones[protagonista.x - x, protagonista.y - y] = TipoElemento.Vacio;
-            return mensaje +"Casilla segura\n" + protagonista.MostrarDatos();
+            return mensaje +"Casilla segura\n " + protagonista.MostrarDatos();
         }
         private bool RevisarCasillasAdyacentes(int x, int y, TipoElemento elementoBuscado)
         {
@@ -174,7 +178,7 @@ namespace ClassLibrary1
                 }
             }
 
-            return false; // No hay ninguno de ese tipo cerca
+            return false;
         }
 
     }
