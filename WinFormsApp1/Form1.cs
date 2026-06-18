@@ -1,6 +1,6 @@
 using ClassLibrary1;
 using static System.Net.WebRequestMethods;
-
+using Persistencia;
 namespace WinFormsApp1
 {
     public partial class Interfaz1 : Form
@@ -67,8 +67,68 @@ namespace WinFormsApp1
             panelControles.Controls.Add(btnIzquierda);
             panelControles.Controls.Add(btnAbajo);
             panelControles.Controls.Add(btnDerecha);
-        }
 
+            // Botones para guardar y cargar partida
+            Button btnGuardar = new Button();
+            btnGuardar.Text = "Guardar Partida";
+            btnGuardar.Location = new Point(15, 380); 
+            btnGuardar.Size = new Size(120, 30);
+            // Llama al metodo de guardarPartida dentro de la Persistencia
+            btnGuardar.Click += (s, e) => {
+                bool exito = Persistencia.Partida.GuardarPartida(this.ambiente);
+                if (exito)
+                {
+                    RegistrarMensaje("Partida guardada con éxito.");
+                }
+                else
+                {
+                    RegistrarMensaje("Error al guardar la partida.");
+                }
+            };
+            panelControles.Controls.Add(btnGuardar);
+
+            Button btnCargar = new Button();
+            btnCargar.Text = "Cargar Partida";
+            btnCargar.Location = new Point(145, 380);
+            btnCargar.Size = new Size(120, 30);
+            btnCargar.Click += (s, e) => {
+                // Este metodo llamara a la clase "Partida"
+                EjecutarCargaDePartida();
+            };
+            panelControles.Controls.Add(btnCargar);
+        }
+        private void EjecutarCargaDePartida()
+        {
+            // Si los botones estaban desactivados se activan nuevamente
+            if(btnArriba.Enabled == false)
+            {
+                btnArriba.Enabled = true;
+                btnAbajo.Enabled = true;
+                btnIzquierda.Enabled = true;
+                btnDerecha.Enabled = true;
+            }
+            // Se llama al metodo de CargarPartida que retornará el ambiente guardado
+            Ambiente partidaCargada = Persistencia.Partida.CargarPartida();
+
+            if (partidaCargada == null)
+            {
+                RegistrarMensaje("No se encontró ninguna partida guardada");
+                return;
+            }
+
+            // Reemplazamos el ambiente viejo por el cargado
+            this.ambiente = partidaCargada;
+
+            // Limpiamos e informamos en la interfaz
+            txtBitacora.Clear();
+            RegistrarMensaje("Partida cargada con éxito. Retomando aventura...");
+
+            // Redibujamos por completo el mapa con las coordenadas guardadas del jugador
+            ActualizarMapa(this.ambiente.protagonista.x, this.ambiente.protagonista.y);
+
+            // Falta actualizar la posicion de los objetos Pozo, Wumpus y el oro
+ 
+        }
         private void IntentarMover(int desX, int desY)
         {
             string mensaje = ambiente.SimularTurno(desX, desY);
@@ -106,6 +166,7 @@ namespace WinFormsApp1
             btnIzquierda.Enabled = false;
             btnDerecha.Enabled = false;
         }
+        // Al cargar una nueva partida se ejecutará este metodo con la posicion guardada del jugador
         private void ActualizarMapa(int xActual, int yActual)
         {
             // La casilla actual del jugador queda como visitada

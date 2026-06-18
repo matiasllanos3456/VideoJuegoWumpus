@@ -16,9 +16,10 @@ namespace ClassLibrary1
         // Se necesitará acceder a algunas propiedades del protagonista
         // desde fuera de la clase
         public Protagonista protagonista { get; private set; }
-        private Wumpus wumpus;
+        public Wumpus wumpus { get; private set; }
         private TipoElemento[,] Dimensiones;
-        private Pozo[] Pozos;
+        public Pozo[] Pozos { get; private set; }
+        public int[] posicionOro { get; private set; }
         // Se leera desde la interfaz pero solo se modificará desde la misma clase
         public bool Finalizado {  get; private set; }
         private Random random = new Random();
@@ -31,8 +32,21 @@ namespace ClassLibrary1
             wumpus = new Wumpus(0,0);
             // Habrán 3 objetos pozo
             Pozos = new Pozo[2];
+            // La posicion del oro quedara guardada en un array de longitud 2
+            posicionOro = new int[2];
             // Habrá un solo oro
             Finalizado = false;
+        }
+        // Metodo para obtener un elemento dentro de las dimensiones
+        public TipoElemento ObtenerElemento(int x, int y)
+        {
+            return Dimensiones[x,y];
+        }
+        // Si se carga una nueva partida se debe cambiar de lugar al wumpus, los pozos y el oro
+        // a la posición que quedó guardada
+        public void AsignarElemento(int x, int y, TipoElemento elemento)
+        {
+            Dimensiones[x, y] = elemento;
         }
         // Se manejará un juego por turnos
         public void GenerarMapa()
@@ -58,6 +72,8 @@ namespace ClassLibrary1
             // Casilla del oro
             (int oroX, int oroY) = ObtenerCasillaVaciaAleatoria();
             Dimensiones[oroX, oroY] = TipoElemento.Oro;
+            posicionOro[0] = oroX;
+            posicionOro[1] = oroY;
 
             // Casillas para los 2 pozos
             for(int i = 0; i < 2; i++)
@@ -141,7 +157,10 @@ namespace ClassLibrary1
             }
             if (RevisarCasillasAdyacentes(protagonista.x, protagonista.y, TipoElemento.Pozo))
             {
-                mensaje += Pozos[0].EmitirViento() + "\n";
+                if (Pozos[0] != null)
+                {
+                    mensaje += Pozos[0].EmitirViento() + "\n";
+                }
             }
             if (RevisarCasillasAdyacentes(protagonista.x, protagonista.y, TipoElemento.Oro))
             {
@@ -180,6 +199,58 @@ namespace ClassLibrary1
 
             return false;
         }
+        // Al cargar la partida tambien se deben mover los objetos y el oro a su antigua posicion
+        // ya que solo se actualizan las casillas de la matriz, mas no los objetos
+        public void SincronizarElementosDespuesDeCargar()
+        {
+            int indicePozo = 0;
+            if (this.wumpus == null)
+            {
+                this.wumpus = new Wumpus(4,4);
+            }
 
+            // Si el arreglo de Pozos llegó como null, se instanciará denuevo
+            if (this.Pozos == null)
+            {
+                this.Pozos = new Pozo[2];
+            }
+
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    // Si encontramos al Wumpus en la matriz, le actualizamos su posición interna
+                    if (Dimensiones[i, j] == TipoElemento.Wumpus && this.wumpus != null)
+                    {
+                        this.wumpus.x = i;
+                        this.wumpus.y = j;
+                    }
+                    // Si encontramos un Pozo, se lo asignamos a nuestro arreglo de Pozos en orden
+                    else if (Dimensiones[i, j] == TipoElemento.Pozo && this.Pozos != null && indicePozo < this.Pozos.Length)
+                    {
+                        if (this.Pozos[indicePozo] != null)
+                        {
+                            this.Pozos[indicePozo].x = i;
+                            this.Pozos[indicePozo].y = j;
+                        }
+                        indicePozo++;
+                    }
+                    // Si encontramos la casilla del Oro en la matriz, actualizamos su posicion
+                    else if (Dimensiones[i, j] == TipoElemento.Oro && this.posicionOro != null)
+                    {
+                        // Si el protagonista ya encontró el oro, este no se coloca denuevo
+                        if (!protagonista.EncontroOro)
+                        {
+                            this.posicionOro[0] = i;
+                            this.posicionOro[1] = j;
+                        } else
+                        {
+                            // Si ya lo encontró la casilla que antes contenia al oro queda vacía
+                            Dimensiones[i, j] = TipoElemento.Vacio;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
